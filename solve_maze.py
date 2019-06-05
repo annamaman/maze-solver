@@ -1,10 +1,7 @@
-import sys, os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + './module')
-
 # A*アルゴリズムにより迷路の最短経路を計算
-from text_analyzer import SquareTextAnalyzer
-from maze import Maze
-from aster_solver import AsterSolver
+from module.text_analyzer import SquareTextAnalyzer
+from module.maze import Maze
+from module.aster_solver import AsterSolver
 
 start_point = [0,0]
 goal_point = [19,19]
@@ -16,9 +13,8 @@ aster_solver = AsterSolver(maze, start_point, goal_point)
 aster_solver.solve_maze()
 
 # 最短経路をpygameを用いて本田が動くように表示
-import pygame
+import pygame,sys,time
 from pygame.locals import *
-import time
 
 pygame.init()
 
@@ -27,7 +23,7 @@ c = 600 // meiro_size
 
 screen = pygame.display.set_mode((600, 600))
 pygame.display.set_caption('./img/hondatomeiro')
-peopleImage = pygame.image.load('./img/people.jpg')
+peopleImage = pygame.image.load('./img/honda.jpg')
 peopleImage = pygame.transform.scale(peopleImage,(c,c))
 winImage = pygame.image.load('./img/win.jpg')
 winImage = pygame.transform.scale(winImage,(600,300))

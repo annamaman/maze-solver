@@ -14,6 +14,7 @@ class Node(object):
 class NodeList(list):
     def find_nodelist(self, state):
         node_list = [t for t in self if t.state == state]
+        return node_list[0] if node_list != [] else None
     def remove_from_nodelist(self, node):
         del self[self.index(node)]
 
@@ -43,18 +44,18 @@ class AsterSolver(object):
     def go_next(self, next_actions, node):
         node_gs = node.fs - node.hs
         for action in next_actions:
-            open_list = self.open_list.find_nodelist(node)
+            open_list = self.open_list.find_nodelist(action)
             dist = (node.state[0] - action[0]) ** 2 + (node.state[1] - action[1]) ** 2
             if open_list:
                 if open_list.fs > node_gs + open_list.hs + dist:
                     open_list.fs = node_gs + open_list.hs + dist
                     open_list.parent_node = node
             else:
-                open_list = self.close_list.find_nodelist(node)
+                open_list = self.close_list.find_nodelist(action)
                 if open_list:
                     if open_list.fs > node_gs + open_list.hs + dist:
                         open_list.fs = node_gs + open_list.hs + dist
-                        open_list.parent_node - node
+                        open_list.parent_node = node
                         self.open_list.append(open_list)
                         self.close_list.remove_from_nodelist(open_list)
                 else:
