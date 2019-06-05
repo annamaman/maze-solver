@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<!-- saved from url=(0491)https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&nwo=shibuiwilliam%2Fmaze_solver&path=maze_Astar_dqn.ipynb&repository_id=86834753&repository_type=Repository#3fa1f52a-3c4f-4cc3-9065-c0c980f0ab5d -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Render</title>
+  <meta name="referrer" content="never">
+    <script src="./ipynb-0af7578295a2e6aa289c70ec5144846e.js.ダウンロード"></script><link rel="stylesheet" href="./ipynb-cdc8a2c29b9e77afb5ead41e895d2850.css">
+
+
+</head>
+<body class="" data-render-url="https://render.githubusercontent.com" data-github-hostname="github.com" style="">
+  <div class="render-shell js-render-shell" data-document-nwo="shibuiwilliam/maze_solver" data-document-commit="1163295b8eb62e3b83dc009cd442111744819b98" data-document-path="maze_Astar_dqn.ipynb" data-file="https://github-render.s3.amazonaws.com/prod/22319925e7f548a121e94f4023a14956-render.html?AWSAccessKeyId=AKIAJILR36AMCOMBK3MQ&amp;Signature=BHhhTukoJJYG9auuq73yGHWGiDQ%3D&amp;Expires=1557977407" data-meta="https://github-render.s3.amazonaws.com/prod/22319925e7f548a121e94f4023a14956-meta.json?AWSAccessKeyId=AKIAJILR36AMCOMBK3MQ&amp;Signature=uSoxYs2a7cikz6mfFIPYTc12mwg%3D&amp;Expires=1557977407">
+    
+
+<div class="render-info">
+  <div class="js-viewer-health render-health is-viewer-good">
+    <span class="symbol">⊖</span>
+    <span class="js-message message">Everything running smoothly!</span>
+  </div>
+</div>
+
+<div id="notebook" class="js-html">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1>Solving Maze with A-star algorithm, Q-learning and Deep Q-network<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Solving-Maze-with-A-star-algorithm,-Q-learning-and-Deep-Q-network">¶</a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3>Objective of this notebook is to solve self-made maze with A-star algorithm, Q-learning and Deep Q-network.<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Objective-of-this-notebook-is-to-solve-self-made-maze-with-A-star-algorithm,-Q-learning-and-Deep-Q-network.">¶</a>
+</h3>
+<h3>The maze is in square shape, consists of start point, goal point and tiles in the mid of them.<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#The-maze-is-in-square-shape,-consists-of-start-point,-goal-point-and-tiles-in-the-mid-of-them.">¶</a>
+</h3>
+<h3>Each tile has numericals as its point. In other words, if you step on to the tile with -1, you get 1 point subtracted.<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Each-tile-has-numericals-as-its-point.-In-other-words,-if-you-step-on-to-the-tile-with--1,-you-get-1-point-subtracted.">¶</a>
+</h3>
+<h3>The maze has blocks to prevent you from taking the route.<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#The-maze-has-blocks-to-prevent-you-from-taking-the-route.">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pds</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Activation</span><span class="p">,</span> <span class="n">Flatten</span>
+<span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="k">import</span> <span class="n">Adam</span><span class="p">,</span> <span class="n">RMSprop</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">deque</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Using TensorFlow backend.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1>Maze Class<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Maze-Class">¶</a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">Maze</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">blocks_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="mi">10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">size</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">blocks_rate</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maze_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">create_mid_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s_list</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tmp_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">tmp_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">l</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="n">tmp_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">tmp_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">a</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">maze_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">insert_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">s_r</span><span class="p">,</span> <span class="n">e_r</span><span class="p">):</span>
+        <span class="n">b_y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">b_x</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">[</span><span class="n">b_y</span><span class="p">,</span> <span class="n">b_x</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">s_r</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[</span><span class="n">b_y</span><span class="p">,</span> <span class="n">b_x</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">e_r</span><span class="p">]:</span> <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze_list</span><span class="p">[</span><span class="n">b_y</span><span class="p">][</span><span class="n">b_x</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"#"</span>
+            
+    <span class="k">def</span> <span class="nf">generate_maze</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
+        <span class="n">s_r</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">s_r</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s2">"S"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span>
+        <span class="n">start_point</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s_r</span><span class="p">]</span>
+
+        <span class="n">e_r</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">e_r</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">50</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span>
+        <span class="n">goal_point</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">e_r</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_mid_lines</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insert_blocks</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">s_r</span><span class="p">,</span> <span class="n">e_r</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze_list</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">goal_point</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1>Maze functions<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Maze-functions">¶</a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">Field</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maze</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">goal_point</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maze</span> <span class="o">=</span> <span class="n">maze</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span> <span class="o">=</span> <span class="n">start_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span> <span class="o">=</span> <span class="n">goal_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movable_vec</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">field_data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">point</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">point</span>
+                <span class="n">field_data</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"@@"</span>
+        <span class="k">else</span><span class="p">:</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">field_data</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"</span><span class="si">%3s</span><span class="s2"> "</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">get_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">movables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="p">[[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]]</span>
+            <span class="k">return</span> <span class="n">a</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">movable_vec</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">)</span> <span class="ow">and</span>
+                       <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span>
+                       <span class="n">maze</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"#"</span> <span class="ow">and</span>
+                       <span class="n">maze</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"S"</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">movables</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">movables</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">movables</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">get_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span><span class="p">:</span> <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span><span class="p">:</span> 
+                <span class="k">return</span> <span class="n">v</span><span class="p">,</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="k">return</span> <span class="n">v</span><span class="p">,</span> <span class="kc">False</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1>Generate a maze<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Generate-a-maze">¶</a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">size</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">barriar_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="n">maze_1</span> <span class="o">=</span> <span class="n">Maze</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">barriar_rate</span><span class="p">)</span>
+<span class="n">maze</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">goal_point</span> <span class="o">=</span> <span class="n">maze_1</span><span class="o">.</span><span class="n">generate_maze</span><span class="p">()</span>
+<span class="n">maze_field</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">goal_point</span><span class="p">)</span>
+
+<span class="n">maze_field</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1>Solving the maze with A-star algorithm<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Solving-the-maze-with-A-star-algorithm">¶</a>
+</h1>
+<h3>
+<a href="https://en.wikipedia.org/wiki/A*_search_algorithm">https://en.wikipedia.org/wiki/A*_search_algorithm</a><a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#https://en.wikipedia.org/wiki/A*_search_algorithm">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">goal_point</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span> <span class="o">=</span> <span class="n">start_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span> <span class="o">=</span> <span class="n">goal_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hs</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_node</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">def</span> <span class="nf">confirm_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">:</span> <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">NodeList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">find_nodelist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">node_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">state</span><span class="o">==</span><span class="n">state</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">node_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">node_list</span> <span class="o">!=</span> <span class="p">[]</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">def</span> <span class="nf">remove_from_nodelist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">node</span><span class="p">)]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">Aster_Solver</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maze</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">goal_point</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Field</span> <span class="o">=</span> <span class="n">maze</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span> <span class="o">=</span> <span class="n">start_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span> <span class="o">=</span> <span class="n">goal_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">open_list</span> <span class="o">=</span> <span class="n">NodeList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close_list</span> <span class="o">=</span> <span class="n">NodeList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="n">display</span>
+        
+    <span class="k">def</span> <span class="nf">set_initial_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span><span class="p">)</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">start_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">goal_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span> 
+        <span class="k">return</span> <span class="n">node</span>
+                
+    <span class="k">def</span> <span class="nf">go_next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">next_actions</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">node_gs</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">fs</span> <span class="o">-</span> <span class="n">node</span><span class="o">.</span><span class="n">hs</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">next_actions</span><span class="p">:</span>
+            <span class="n">open_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_list</span><span class="o">.</span><span class="n">find_nodelist</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">open_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">open_list</span><span class="o">.</span><span class="n">fs</span> <span class="o">&gt;</span> <span class="n">node_gs</span> <span class="o">+</span> <span class="n">open_list</span><span class="o">.</span><span class="n">hs</span> <span class="o">+</span> <span class="n">dist</span><span class="p">:</span>
+                    <span class="n">open_list</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="n">node_gs</span> <span class="o">+</span> <span class="n">open_list</span><span class="o">.</span><span class="n">hs</span> <span class="o">+</span> <span class="n">dist</span>
+                    <span class="n">open_list</span><span class="o">.</span><span class="n">parent_node</span> <span class="o">=</span> <span class="n">node</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">open_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">close_list</span><span class="o">.</span><span class="n">find_nodelist</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">open_list</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">open_list</span><span class="o">.</span><span class="n">fs</span> <span class="o">&gt;</span> <span class="n">node_gs</span> <span class="o">+</span> <span class="n">open_list</span><span class="o">.</span><span class="n">hs</span> <span class="o">+</span> <span class="n">dist</span><span class="p">:</span>
+                        <span class="n">open_list</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="n">node_gs</span> <span class="o">+</span> <span class="n">open_list</span><span class="o">.</span><span class="n">hs</span> <span class="o">+</span> <span class="n">dist</span>
+                        <span class="n">open_list</span><span class="o">.</span><span class="n">parent_node</span> <span class="o">=</span> <span class="n">node</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">open_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">open_list</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">close_list</span><span class="o">.</span><span class="n">remove_from_nodelist</span><span class="p">(</span><span class="n">open_list</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">open_list</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_point</span><span class="p">)</span>
+                    <span class="n">open_list</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="n">node_gs</span> <span class="o">+</span> <span class="n">open_list</span><span class="o">.</span><span class="n">hs</span> <span class="o">+</span> <span class="n">dist</span>
+                    <span class="n">open_list</span><span class="o">.</span><span class="n">parent_node</span> <span class="o">=</span> <span class="n">node</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">open_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">open_list</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">solve_maze</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_initial_node</span><span class="p">()</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">hs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">open_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>            
+            <span class="n">node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">open_list</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">node</span><span class="p">:</span><span class="n">node</span><span class="o">.</span><span class="n">fs</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">"current state:  </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">state</span><span class="p">))</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            
+            <span class="n">reward</span><span class="p">,</span> <span class="n">tf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">get_val</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">reward</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"current step: </span><span class="si">{0}</span><span class="s2"> </span><span class="se">\t</span><span class="s2"> score: </span><span class="si">{1}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">tf</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Goal!"</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">open_list</span><span class="o">.</span><span class="n">remove_from_nodelist</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            
+            <span class="n">next_actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>   
+            <span class="bp">self</span><span class="o">.</span><span class="n">go_next</span><span class="p">(</span><span class="n">next_actions</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">astar_Solver</span> <span class="o">=</span> <span class="n">Aster_Solver</span><span class="p">(</span><span class="n">maze_field</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">goal_point</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">astar_Solver</span><span class="o">.</span><span class="n">solve_maze</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>current state:  [0, 1]
+	  #  @@   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 0 	 score: 0 
+
+current state:  [1, 1]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  @@   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 1 	 score: -1.0 
+
+current state:  [2, 1]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  @@   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 2 	 score: -2.0 
+
+current state:  [3, 1]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #  @@   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 3 	 score: -2.0 
+
+current state:  [4, 1]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #  @@   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 4 	 score: -2.0 
+
+current state:  [4, 2]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0  @@   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 5 	 score: -2.0 
+
+current state:  [5, 2]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #  @@   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 6 	 score: -2.0 
+
+current state:  [6, 2]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1  @@  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 7 	 score: -2.0 
+
+current state:  [6, 3]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  @@   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 8 	 score: -3.0 
+
+current state:  [6, 4]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1  @@   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 9 	 score: -3.0 
+
+current state:  [7, 4]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  @@  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 10 	 score: -4.0 
+
+current state:  [7, 5]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  @@   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 11 	 score: -5.0 
+
+current state:  [7, 6]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1  @@  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 12 	 score: -5.0 
+
+current state:  [8, 6]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #  @@  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 13 	 score: -5.0 
+
+current state:  [8, 7]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  @@   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 14 	 score: -6.0 
+
+current state:  [9, 7]
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  @@   #   # 
+current step: 15 	 score: 44.0 
+
+Goal!
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1>Solving the maze in Q-learning<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Solving-the-maze-in-Q-learning">¶</a>
+</h1>
+<h3>
+<a href="https://en.wikipedia.org/wiki/Q-learning">https://en.wikipedia.org/wiki/Q-learning</a><a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#https://en.wikipedia.org/wiki/Q-learning">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[65]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">QLearning_Solver</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maze</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Qvalue</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Field</span> <span class="o">=</span> <span class="n">maze</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span>  <span class="o">=</span> <span class="mf">0.9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="n">display</span>
+
+    <span class="k">def</span> <span class="nf">qlearn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">greedy_flg</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">start_point</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">greedy_flg</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_action_greedy</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"current state: </span><span class="si">{0}</span><span class="s2"> -&gt; action: </span><span class="si">{1}</span><span class="s2"> "</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                <span class="n">reward</span><span class="p">,</span> <span class="n">tf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">get_val</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">reward</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"current step: </span><span class="si">{0}</span><span class="s2"> </span><span class="se">\t</span><span class="s2"> score: </span><span class="si">{1}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">tf</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Goal!"</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_action</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>    
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_Qvalue</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">action</span>
+
+    <span class="k">def</span> <span class="nf">update_Qvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="n">Q_s_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_Qvalue</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+        <span class="n">mQ_s_a</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Qvalue</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">n_action</span><span class="p">)</span> <span class="k">for</span> <span class="n">n_action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="n">action</span><span class="p">)])</span>
+        <span class="n">r_s_a</span><span class="p">,</span> <span class="n">finish_flg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">get_val</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">q_value</span> <span class="o">=</span> <span class="n">Q_s_a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span> <span class="n">r_s_a</span> <span class="o">+</span>  <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">mQ_s_a</span> <span class="o">-</span> <span class="n">Q_s_a</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_Qvalue</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">q_value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">finish_flg</span>
+
+
+    <span class="k">def</span> <span class="nf">get_Qvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Qvalue</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">action</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">def</span> <span class="nf">set_Qvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">q_value</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Qvalue</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">state</span><span class="p">,{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Qvalue</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_value</span>
+
+    <span class="k">def</span> <span class="nf">choose_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">&lt;</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_action_greedy</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">choose_action_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">best_actions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">max_q_value</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+            <span class="n">q_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_Qvalue</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">q_value</span> <span class="o">&gt;</span> <span class="n">max_q_value</span><span class="p">:</span>
+                <span class="n">best_actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,]</span>
+                <span class="n">max_q_value</span> <span class="o">=</span> <span class="n">q_value</span>
+            <span class="k">elif</span> <span class="n">q_value</span> <span class="o">==</span> <span class="n">max_q_value</span><span class="p">:</span>
+                <span class="n">best_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">best_actions</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">dump_Qvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"##### Dump Qvalue #####"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Qvalue</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Qvalue</span><span class="p">[</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\t\t</span><span class="s2">Q(s, a): Q(</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Qvalue</span><span class="p">[</span><span class="n">s</span><span class="p">][</span><span class="n">a</span><span class="p">])))</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Qvalue</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span> 
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">------------------state   action   reward'</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">learning_count</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">QL_solver</span> <span class="o">=</span> <span class="n">QLearning_Solver</span><span class="p">(</span><span class="n">maze_field</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">learning_count</span><span class="p">):</span>
+    <span class="n">QL_solver</span><span class="o">.</span><span class="n">qlearn</span><span class="p">()</span>
+
+<span class="n">QL_solver</span><span class="o">.</span><span class="n">dump_Qvalue</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>##### Dump Qvalue #####
+		Q(s, a): Q((7, 3), (6, 3)): 22.383403999999945
+		Q(s, a): Q((7, 3), (7, 4)): 26.96839999999995
+		Q(s, a): Q((7, 3), (8, 3)): 20.944403999999945
+		Q(s, a): Q((7, 3), (7, 2)): 19.944403999999945
+	------------------state   action   reward
+		Q(s, a): Q((4, 7), (3, 7)): 19.316063599999943
+		Q(s, a): Q((4, 7), (5, 7)): 25.081559999999943
+		Q(s, a): Q((4, 7), (4, 6)): 24.081559999999943
+		Q(s, a): Q((4, 7), (4, 8)): 23.542559999999945
+	------------------state   action   reward
+		Q(s, a): Q((5, 7), (5, 6)): 27.868399999999944
+		Q(s, a): Q((5, 7), (4, 7)): 22.573403999999943
+		Q(s, a): Q((5, 7), (5, 8)): 26.158399999999947
+	------------------state   action   reward
+		Q(s, a): Q((6, 6), (5, 6)): 27.868399999999944
+		Q(s, a): Q((6, 6), (7, 6)): 35.63999999999995
+		Q(s, a): Q((6, 6), (6, 5)): 28.868399999999944
+	------------------state   action   reward
+		Q(s, a): Q((5, 6), (5, 5)): 25.981559999999945
+		Q(s, a): Q((5, 6), (5, 7)): 25.081559999999943
+		Q(s, a): Q((5, 6), (4, 6)): 24.081559999999943
+		Q(s, a): Q((5, 6), (6, 6)): 32.075999999999944
+	------------------state   action   reward
+		Q(s, a): Q((2, 8), (3, 8)): 21.188303998670477
+		Q(s, a): Q((2, 8), (2, 7)): 17.384218785523064
+	------------------state   action   reward
+		Q(s, a): Q((7, 7), (7, 6)): 35.63999999999995
+		Q(s, a): Q((7, 7), (7, 8)): 34.63999999999995
+		Q(s, a): Q((7, 7), (8, 7)): 43.99999999999997
+	------------------state   action   reward
+		Q(s, a): Q((2, 1), (3, 1)): 13.807666227959947
+		Q(s, a): Q((2, 1), (1, 1)): 10.184209644647552
+		Q(s, a): Q((2, 1), (2, 2)): 13.807666227959947
+	------------------state   action   reward
+		Q(s, a): Q((6, 2), (6, 3)): 22.383403999999945
+		Q(s, a): Q((6, 2), (6, 1)): 17.13055723999994
+		Q(s, a): Q((6, 2), (5, 2)): 18.13055723999994
+		Q(s, a): Q((6, 2), (7, 2)): 19.944403999999945
+	------------------state   action   reward
+		Q(s, a): Q((1, 6), (1, 5)): 14.260905638468861
+		Q(s, a): Q((1, 6), (2, 6)): 17.60606358901876
+		Q(s, a): Q((1, 6), (1, 7)): 15.645963608063878
+	------------------state   action   reward
+		Q(s, a): Q((3, 7), (3, 8)): 21.188303999848387
+		Q(s, a): Q((3, 7), (2, 7)): 17.384457239573162
+		Q(s, a): Q((3, 7), (4, 7)): 22.573403999999943
+		Q(s, a): Q((3, 7), (3, 6)): 20.67340399993786
+	------------------state   action   reward
+		Q(s, a): Q((2, 5), (1, 5)): 14.26091151488946
+		Q(s, a): Q((2, 5), (2, 6)): 17.606063599999942
+		Q(s, a): Q((2, 5), (2, 4)): 16.0465015159999
+	------------------state   action   reward
+		Q(s, a): Q((7, 2), (7, 3)): 23.271559999999948
+		Q(s, a): Q((7, 2), (6, 2)): 20.145063599999943
+		Q(s, a): Q((7, 2), (8, 2)): 17.849963599999946
+	------------------state   action   reward
+		Q(s, a): Q((1, 2), (1, 1)): 10.184209644647552
+		Q(s, a): Q((1, 2), (2, 2)): 13.807666227959947
+	------------------state   action   reward
+		Q(s, a): Q((3, 8), (2, 8)): 18.06947340293805
+		Q(s, a): Q((3, 8), (3, 7)): 19.316063597150947
+		Q(s, a): Q((3, 8), (4, 8)): 23.542559999999945
+	------------------state   action   reward
+		Q(s, a): Q((5, 5), (4, 5)): 22.383403999999945
+		Q(s, a): Q((5, 5), (5, 6)): 27.868399999999944
+		Q(s, a): Q((5, 5), (5, 4)): 23.383403999999945
+		Q(s, a): Q((5, 5), (6, 5)): 28.868399999999944
+	------------------state   action   reward
+		Q(s, a): Q((8, 1), (8, 2)): 17.849963599999946
+	------------------state   action   reward
+		Q(s, a): Q((7, 6), (8, 6)): 39.59999999999996
+		Q(s, a): Q((7, 6), (7, 5)): 31.07599999999995
+		Q(s, a): Q((7, 6), (7, 7)): 38.59999999999996
+		Q(s, a): Q((7, 6), (6, 6)): 32.075999999999944
+	------------------state   action   reward
+		Q(s, a): Q((4, 8), (3, 8)): 21.188303999999913
+		Q(s, a): Q((4, 8), (4, 7)): 22.57340399999993
+		Q(s, a): Q((4, 8), (5, 8)): 26.158399999999947
+	------------------state   action   reward
+		Q(s, a): Q((4, 4), (4, 5)): 22.383403999999945
+		Q(s, a): Q((4, 4), (5, 4)): 23.383403999999945
+		Q(s, a): Q((4, 4), (3, 4)): 18.940557239999944
+		Q(s, a): Q((4, 4), (4, 3)): 18.940557239999944
+	------------------state   action   reward
+		Q(s, a): Q((6, 3), (6, 4)): 25.981559999999945
+		Q(s, a): Q((6, 3), (6, 2)): 20.145063599999943
+		Q(s, a): Q((6, 3), (7, 3)): 23.271559999999948
+	------------------state   action   reward
+		Q(s, a): Q((1, 5), (2, 5)): 15.84545723996529
+		Q(s, a): Q((1, 5), (1, 6)): 14.845456821575093
+		Q(s, a): Q((1, 5), (1, 4)): 14.441851364276374
+	------------------state   action   reward
+		Q(s, a): Q((5, 8), (5, 7)): 25.081559999999943
+		Q(s, a): Q((5, 8), (6, 8)): 30.17599999999995
+		Q(s, a): Q((5, 8), (4, 8)): 23.542559999999945
+	------------------state   action   reward
+		Q(s, a): Q((3, 6), (3, 7)): 19.31606359999994
+		Q(s, a): Q((3, 6), (2, 6)): 17.606063599999754
+		Q(s, a): Q((3, 6), (4, 6)): 24.081559999999943
+	------------------state   action   reward
+		Q(s, a): Q((2, 2), (1, 2)): 12.42689960516395
+		Q(s, a): Q((2, 2), (3, 2)): 15.341851364399945
+		Q(s, a): Q((2, 2), (2, 3)): 13.441851364399945
+		Q(s, a): Q((2, 2), (2, 1)): 11.42689960516395
+	------------------state   action   reward
+		Q(s, a): Q((3, 4), (4, 4)): 21.045063599999946
+		Q(s, a): Q((3, 4), (2, 4)): 16.046501515999942
+	------------------state   action   reward
+		Q(s, a): Q((8, 6), (7, 6)): 35.63999999999995
+		Q(s, a): Q((8, 6), (8, 7)): 43.99999999999997
+	------------------state   action   reward
+		Q(s, a): Q((4, 1), (4, 2)): 17.046501515999942
+		Q(s, a): Q((4, 1), (3, 1)): 13.807666227959947
+	------------------state   action   reward
+		Q(s, a): Q((1, 1), (1, 2)): 12.42689960516395
+		Q(s, a): Q((1, 1), (2, 1)): 11.42689960516395
+	------------------state   action   reward
+		Q(s, a): Q((0, 1), (1, 1)): 10.184209644647552
+	------------------state   action   reward
+		Q(s, a): Q((3, 2), (4, 2)): 17.046501515999942
+		Q(s, a): Q((3, 2), (3, 1)): 13.807666227959947
+		Q(s, a): Q((3, 2), (2, 2)): 13.807666227959947
+	------------------state   action   reward
+		Q(s, a): Q((2, 6), (2, 7)): 17.384457237695823
+		Q(s, a): Q((2, 6), (2, 5)): 15.845457239497868
+		Q(s, a): Q((2, 6), (1, 6)): 14.845456780137878
+		Q(s, a): Q((2, 6), (3, 6)): 20.67340399999994
+	------------------state   action   reward
+		Q(s, a): Q((8, 2), (8, 1)): 15.064967239999891
+		Q(s, a): Q((8, 2), (8, 3)): 20.944403999999945
+		Q(s, a): Q((8, 2), (7, 2)): 19.944403999999903
+	------------------state   action   reward
+		Q(s, a): Q((4, 5), (4, 4)): 21.045063599999946
+		Q(s, a): Q((4, 5), (5, 5)): 25.981559999999945
+		Q(s, a): Q((4, 5), (4, 6)): 24.081559999999943
+	------------------state   action   reward
+		Q(s, a): Q((1, 4), (1, 5)): 14.260911497821613
+		Q(s, a): Q((1, 4), (2, 4)): 16.046501515999942
+	------------------state   action   reward
+		Q(s, a): Q((7, 5), (7, 4)): 26.96839999999995
+		Q(s, a): Q((7, 5), (7, 6)): 35.63999999999995
+		Q(s, a): Q((7, 5), (6, 5)): 28.868399999999944
+	------------------state   action   reward
+		Q(s, a): Q((2, 3), (2, 4)): 16.046501515999942
+		Q(s, a): Q((2, 3), (2, 2)): 13.807666227959947
+	------------------state   action   reward
+		Q(s, a): Q((8, 7), (8, 6)): 39.59999999999996
+		Q(s, a): Q((8, 7), (8, 8)): 39.59999999999996
+		Q(s, a): Q((8, 7), (7, 7)): 38.59999999999996
+		Q(s, a): Q((8, 7), (9, 7)): 49.999999999999986
+	------------------state   action   reward
+		Q(s, a): Q((5, 4), (6, 4)): 25.981559999999945
+		Q(s, a): Q((5, 4), (4, 4)): 21.045063599999946
+		Q(s, a): Q((5, 4), (5, 5)): 25.981559999999945
+	------------------state   action   reward
+		Q(s, a): Q((4, 2), (5, 2)): 18.13055723999994
+		Q(s, a): Q((4, 2), (3, 2)): 15.341851364399945
+		Q(s, a): Q((4, 2), (4, 1)): 15.341851364399945
+		Q(s, a): Q((4, 2), (4, 3)): 18.940557239999944
+	------------------state   action   reward
+		Q(s, a): Q((6, 4), (6, 3)): 22.383403999999945
+		Q(s, a): Q((6, 4), (7, 4)): 26.96839999999995
+		Q(s, a): Q((6, 4), (5, 4)): 23.383403999999945
+		Q(s, a): Q((6, 4), (6, 5)): 28.868399999999944
+	------------------state   action   reward
+		Q(s, a): Q((6, 5), (6, 4)): 25.981559999999945
+		Q(s, a): Q((6, 5), (7, 5)): 31.07599999999995
+		Q(s, a): Q((6, 5), (5, 5)): 25.981559999999945
+		Q(s, a): Q((6, 5), (6, 6)): 32.075999999999944
+	------------------state   action   reward
+		Q(s, a): Q((6, 8), (7, 8)): 34.63999999999995
+		Q(s, a): Q((6, 8), (5, 8)): 26.158399999999947
+	------------------state   action   reward
+		Q(s, a): Q((2, 7), (3, 7)): 19.316063599999925
+		Q(s, a): Q((2, 7), (2, 6)): 17.606061573449296
+		Q(s, a): Q((2, 7), (2, 8)): 18.06944509520112
+		Q(s, a): Q((2, 7), (1, 7)): 15.645793187297457
+	------------------state   action   reward
+		Q(s, a): Q((8, 3), (7, 3)): 23.271559999999948
+		Q(s, a): Q((8, 3), (8, 2)): 17.849963599999946
+		Q(s, a): Q((8, 3), (8, 4)): 23.271559999999948
+	------------------state   action   reward
+		Q(s, a): Q((4, 6), (5, 6)): 27.868399999999944
+		Q(s, a): Q((4, 6), (4, 5)): 22.383403999999945
+		Q(s, a): Q((4, 6), (4, 7)): 22.573403999999943
+		Q(s, a): Q((4, 6), (3, 6)): 20.67340399999994
+	------------------state   action   reward
+		Q(s, a): Q((7, 8), (8, 8)): 39.59999999999996
+		Q(s, a): Q((7, 8), (6, 8)): 30.17599999999995
+		Q(s, a): Q((7, 8), (7, 7)): 38.59999999999996
+	------------------state   action   reward
+		Q(s, a): Q((6, 1), (6, 2)): 20.145063599999943
+	------------------state   action   reward
+		Q(s, a): Q((3, 1), (3, 2)): 15.341851364399945
+		Q(s, a): Q((3, 1), (4, 1)): 15.341851364399945
+		Q(s, a): Q((3, 1), (2, 1)): 11.42689960516395
+	------------------state   action   reward
+		Q(s, a): Q((7, 4), (7, 3)): 23.271559999999948
+		Q(s, a): Q((7, 4), (6, 4)): 25.981559999999945
+		Q(s, a): Q((7, 4), (7, 5)): 31.07599999999995
+		Q(s, a): Q((7, 4), (8, 4)): 23.271559999999948
+	------------------state   action   reward
+		Q(s, a): Q((8, 8), (7, 8)): 34.63999999999995
+		Q(s, a): Q((8, 8), (8, 7)): 43.99999999999997
+	------------------state   action   reward
+		Q(s, a): Q((4, 3), (4, 2)): 17.046501515999942
+		Q(s, a): Q((4, 3), (4, 4)): 21.045063599999946
+	------------------state   action   reward
+		Q(s, a): Q((1, 7), (2, 7)): 17.38445498783043
+		Q(s, a): Q((1, 7), (1, 6)): 14.845053127119108
+	------------------state   action   reward
+		Q(s, a): Q((5, 2), (4, 2)): 17.046501515999942
+		Q(s, a): Q((5, 2), (6, 2)): 20.145063599999943
+	------------------state   action   reward
+		Q(s, a): Q((2, 4), (3, 4)): 18.940557239999944
+		Q(s, a): Q((2, 4), (2, 5)): 15.845457239999945
+		Q(s, a): Q((2, 4), (2, 3)): 13.441851364399945
+		Q(s, a): Q((2, 4), (1, 4)): 14.441851364399945
+	------------------state   action   reward
+		Q(s, a): Q((8, 4), (7, 4)): 26.96839999999995
+		Q(s, a): Q((8, 4), (8, 3)): 20.944403999999945
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">QL_solver</span><span class="o">.</span><span class="n">qlearn</span><span class="p">(</span><span class="n">greedy_flg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>current state: [0, 1] -&gt; action: [1, 1] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  @@   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 1 	 score: -1.0
+
+current state: [1, 1] -&gt; action: [1, 2] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1  @@   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 2 	 score: -1.0
+
+current state: [1, 2] -&gt; action: [2, 2] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1  @@  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 3 	 score: -1.0
+
+current state: [2, 2] -&gt; action: [3, 2] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0  @@   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 4 	 score: -1.0
+
+current state: [3, 2] -&gt; action: [4, 2] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0  @@   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 5 	 score: -1.0
+
+current state: [4, 2] -&gt; action: [4, 3] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0  @@   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 6 	 score: -1.0
+
+current state: [4, 3] -&gt; action: [4, 4] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0  @@  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 7 	 score: -1.0
+
+current state: [4, 4] -&gt; action: [5, 4] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #  @@   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 8 	 score: -1.0
+
+current state: [5, 4] -&gt; action: [5, 5] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0  @@  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 9 	 score: -1.0
+
+current state: [5, 5] -&gt; action: [6, 5] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0  @@   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 10 	 score: -1.0
+
+current state: [6, 5] -&gt; action: [6, 6] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0  @@   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 11 	 score: -1.0
+
+current state: [6, 6] -&gt; action: [7, 6] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1  @@  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 12 	 score: -1.0
+
+current state: [7, 6] -&gt; action: [8, 6] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #  @@  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 13 	 score: -1.0
+
+current state: [8, 6] -&gt; action: [8, 7] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  @@   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 14 	 score: -2.0
+
+current state: [8, 7] -&gt; action: [9, 7] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  @@   #   # 
+current step: 15 	 score: 48.0
+
+Goal!
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1>Solving the maze in Deep Q-learning<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#Solving-the-maze-in-Deep-Q-learning">¶</a>
+</h1>
+<h3>
+<a href="https://deepmind.com/research/dqn/">https://deepmind.com/research/dqn/</a><a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=1163295b8eb62e3b83dc009cd442111744819b98&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f73686962756977696c6c69616d2f6d617a655f736f6c7665722f313136333239356238656236326533623833646330303963643434323131313734343831396239382f6d617a655f41737461725f64716e2e6970796e62&amp;nwo=shibuiwilliam%2Fmaze_solver&amp;path=maze_Astar_dqn.ipynb&amp;repository_id=86834753&amp;repository_type=Repository#https://deepmind.com/research/dqn/">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">DQN_Solver</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_size</span><span class="p">,</span> <span class="n">action_size</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_size</span> <span class="o">=</span> <span class="n">state_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_size</span> <span class="o">=</span> <span class="n">action_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_decay</span> <span class="o">=</span> <span class="mf">0.9999</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_min</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.0001</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'tanh'</span><span class="p">))</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Flatten</span><span class="p">())</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'tanh'</span><span class="p">))</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'tanh'</span><span class="p">))</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'linear'</span><span class="p">))</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s2">"mse"</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">RMSprop</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">remember_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">next_movables</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">next_movables</span><span class="p">,</span> <span class="n">done</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">choose_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">movables</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">&gt;=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">movables</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_best_action</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">movables</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">choose_best_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">movables</span><span class="p">):</span>
+        <span class="n">best_actions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">max_act_value</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">movables</span><span class="p">:</span>
+            <span class="n">np_action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">state</span><span class="p">,</span> <span class="n">a</span><span class="p">]])</span>
+            <span class="n">act_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np_action</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">act_value</span> <span class="o">&gt;</span> <span class="n">max_act_value</span><span class="p">:</span>
+                <span class="n">best_actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,]</span>
+                <span class="n">max_act_value</span> <span class="o">=</span> <span class="n">act_value</span>
+            <span class="k">elif</span> <span class="n">act_value</span> <span class="o">==</span> <span class="n">max_act_value</span><span class="p">:</span>
+                <span class="n">best_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">best_actions</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">replay_experience</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">))</span>
+        <span class="n">minibatch</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+            <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">next_movables</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="n">minibatch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">input_action</span> <span class="o">=</span> <span class="p">[</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="n">target_f</span> <span class="o">=</span> <span class="n">reward</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">next_rewards</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">next_movables</span><span class="p">:</span>
+                    <span class="n">np_next_s_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">next_state</span><span class="p">,</span> <span class="n">i</span><span class="p">]])</span>
+                    <span class="n">next_rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np_next_s_a</span><span class="p">))</span>
+                <span class="n">np_n_r_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">next_rewards</span><span class="p">))</span>
+                <span class="n">target_f</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">np_n_r_max</span>
+            <span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_action</span><span class="p">)</span>
+            <span class="n">Y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_f</span><span class="p">)</span>
+        <span class="n">np_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">np_Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Y</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">np_X</span><span class="p">,</span> <span class="n">np_Y</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_min</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_decay</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">state_size</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">action_size</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">dql_solver</span> <span class="o">=</span> <span class="n">DQN_Solver</span><span class="p">(</span><span class="n">state_size</span><span class="p">,</span> <span class="n">action_size</span><span class="p">)</span>
+
+<span class="n">episodes</span> <span class="o">=</span> <span class="mi">20000</span>
+<span class="n">times</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">episodes</span><span class="p">):</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">start_point</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+        <span class="n">movables</span> <span class="o">=</span> <span class="n">maze_field</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">dql_solver</span><span class="o">.</span><span class="n">choose_action</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">movables</span><span class="p">)</span>
+        <span class="n">reward</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="n">maze_field</span><span class="o">.</span><span class="n">get_val</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">score</span> <span class="o">+</span> <span class="n">reward</span>
+        <span class="n">next_state</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="n">next_movables</span> <span class="o">=</span> <span class="n">maze_field</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="n">next_state</span><span class="p">)</span>
+        <span class="n">dql_solver</span><span class="o">.</span><span class="n">remember_memory</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">next_movables</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">done</span> <span class="ow">or</span> <span class="n">time</span> <span class="o">==</span> <span class="p">(</span><span class="n">times</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">e</span> <span class="o">%</span> <span class="mi">500</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"episode: </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">, score: </span><span class="si">{}</span><span class="s2">, e: </span><span class="si">{:.2}</span><span class="s2"> </span><span class="se">\t</span><span class="s2"> @ </span><span class="si">{}</span><span class="s2">"</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">episodes</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">dql_solver</span><span class="o">.</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">time</span><span class="p">))</span>
+            <span class="k">break</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">next_state</span>
+    <span class="n">dql_solver</span><span class="o">.</span><span class="n">replay_experience</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>episode: 0/20000, score: 5.0, e: 1.0 	 @ 100
+episode: 500/20000, score: 19.0, e: 0.95 	 @ 86
+episode: 1000/20000, score: 14.0, e: 0.9 	 @ 82
+episode: 1500/20000, score: 24.0, e: 0.86 	 @ 56
+episode: 2000/20000, score: -9.0, e: 0.82 	 @ 138
+episode: 2500/20000, score: 26.0, e: 0.78 	 @ 76
+episode: 3000/20000, score: 20.0, e: 0.74 	 @ 84
+episode: 3500/20000, score: 42.0, e: 0.7 	 @ 24
+episode: 4000/20000, score: 44.0, e: 0.67 	 @ 22
+episode: 4500/20000, score: 45.0, e: 0.64 	 @ 24
+episode: 5000/20000, score: 46.0, e: 0.61 	 @ 36
+episode: 5500/20000, score: 33.0, e: 0.58 	 @ 32
+episode: 6000/20000, score: 43.0, e: 0.55 	 @ 32
+episode: 6500/20000, score: 48.0, e: 0.52 	 @ 24
+episode: 7000/20000, score: 38.0, e: 0.5 	 @ 34
+episode: 7500/20000, score: 45.0, e: 0.47 	 @ 28
+episode: 8000/20000, score: 43.0, e: 0.45 	 @ 42
+episode: 8500/20000, score: 43.0, e: 0.43 	 @ 24
+episode: 9000/20000, score: 45.0, e: 0.41 	 @ 28
+episode: 9500/20000, score: 45.0, e: 0.39 	 @ 28
+episode: 10000/20000, score: 48.0, e: 0.37 	 @ 20
+episode: 10500/20000, score: 44.0, e: 0.35 	 @ 22
+episode: 11000/20000, score: 46.0, e: 0.33 	 @ 24
+episode: 11500/20000, score: 45.0, e: 0.32 	 @ 22
+episode: 12000/20000, score: 48.0, e: 0.3 	 @ 26
+episode: 12500/20000, score: 45.0, e: 0.29 	 @ 18
+episode: 13000/20000, score: 47.0, e: 0.27 	 @ 18
+episode: 13500/20000, score: 41.0, e: 0.26 	 @ 24
+episode: 14000/20000, score: 47.0, e: 0.25 	 @ 16
+episode: 14500/20000, score: 47.0, e: 0.23 	 @ 14
+episode: 15000/20000, score: 47.0, e: 0.22 	 @ 14
+episode: 15500/20000, score: 48.0, e: 0.21 	 @ 14
+episode: 16000/20000, score: 46.0, e: 0.2 	 @ 18
+episode: 16500/20000, score: 44.0, e: 0.19 	 @ 20
+episode: 17000/20000, score: 48.0, e: 0.18 	 @ 14
+episode: 17500/20000, score: 45.0, e: 0.17 	 @ 20
+episode: 18000/20000, score: 48.0, e: 0.17 	 @ 18
+episode: 18500/20000, score: 48.0, e: 0.16 	 @ 20
+episode: 19000/20000, score: 46.0, e: 0.15 	 @ 18
+episode: 19500/20000, score: 48.0, e: 0.14 	 @ 16
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">state</span> <span class="o">=</span> <span class="n">start_point</span>
+<span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">movables</span> <span class="o">=</span> <span class="n">maze_field</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">dql_solver</span><span class="o">.</span><span class="n">choose_best_action</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">movables</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"current state: </span><span class="si">{0}</span><span class="s2"> -&gt; action: </span><span class="si">{1}</span><span class="s2"> "</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+    <span class="n">reward</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="n">maze_field</span><span class="o">.</span><span class="n">get_val</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="n">maze_field</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">score</span> <span class="o">+</span> <span class="n">reward</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">action</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"current step: </span><span class="si">{0}</span><span class="s2"> </span><span class="se">\t</span><span class="s2"> score: </span><span class="si">{1}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+        <span class="n">maze_field</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"goal!"</span><span class="p">)</span>
+        <span class="k">break</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>current state: [0, 1] -&gt; action: [1, 1] 
+	  #  @@   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 1 	 score: -1.0
+
+current state: [1, 1] -&gt; action: [1, 2] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  @@   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 2 	 score: -1.0
+
+current state: [1, 2] -&gt; action: [2, 2] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1  @@   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 3 	 score: -1.0
+
+current state: [2, 2] -&gt; action: [3, 2] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1  @@  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 4 	 score: -1.0
+
+current state: [3, 2] -&gt; action: [4, 2] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0  @@   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 5 	 score: -1.0
+
+current state: [4, 2] -&gt; action: [4, 3] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0  @@   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 6 	 score: -1.0
+
+current state: [4, 3] -&gt; action: [4, 4] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0  @@   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 7 	 score: -1.0
+
+current state: [4, 4] -&gt; action: [5, 4] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0  @@  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 8 	 score: -1.0
+
+current state: [5, 4] -&gt; action: [5, 5] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #  @@   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 9 	 score: -1.0
+
+current state: [5, 5] -&gt; action: [6, 5] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0  @@  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 10 	 score: -1.0
+
+current state: [6, 5] -&gt; action: [6, 6] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0  @@   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 11 	 score: -1.0
+
+current state: [6, 6] -&gt; action: [7, 6] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0  @@   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 12 	 score: -1.0
+
+current state: [7, 6] -&gt; action: [8, 6] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1  @@  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 13 	 score: -1.0
+
+current state: [8, 6] -&gt; action: [8, 7] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #  @@  -1   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 14 	 score: -2.0
+
+current state: [8, 7] -&gt; action: [9, 7] 
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  @@   0   # 
+	  #   #   #   #   #   #   #  50   #   # 
+current step: 15 	 score: 48.0
+
+	  #   S   #   #   #   #   #   #   #   # 
+	  #  -1   0   #   0   0  -1   0   #   # 
+	  #  -1   0  -1  -1   0  -1   0  -1   # 
+	  #   0   0   #   0   #  -1  -1   0   # 
+	  #   0   0   0   0  -1  -1   0   0   # 
+	  #   #   0   #   0   0  -1   0  -1   # 
+	  #  -1   0  -1   0   0   0   #  -1   # 
+	  #   #  -1  -1  -1  -1   0  -1  -1   # 
+	  #  -1  -1   0  -1   #   0  -1   0   # 
+	  #   #   #   #   #   #   #  @@   #   # 
+goal!
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+ 
+
+</div>
+
+  </div>
+
+  
+
+
+
+</body></html>
