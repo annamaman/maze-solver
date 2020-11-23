@@ -30,9 +30,9 @@ unit_size = window_size // meiro_size
 hondaImage = pygame.transform.scale(hondaImage,(unit_size,unit_size))
 takeshiImage = pygame.transform.scale(takeshiImage,(unit_size,unit_size))
 font = pygame.font.Font(None, unit_size*165//100)
-# pygame.mixer.init(frequency = 44100) 
-# pygame.mixer.music.load("bgm/oni.mp3")
-# pygame.mixer.music.play(-1) 
+pygame.mixer.init(frequency = 44100) 
+pygame.mixer.music.load("bgm/oni.mp3")
+pygame.mixer.music.play(-1) 
 
 # プログラム中のみで使う変数
 traj_index = 0
@@ -58,49 +58,49 @@ while True:
     screen.blit(hondaImage, (honda_current_loc[0]*unit_size, honda_current_loc[1]*unit_size))
 
     # イベント発生時の処理
-    for event in pygame.event.get():    
-        key_array = pygame.key.get_pressed()
-        if key_array[273] == 1:#ue
-            if takeshi_current_loc[1] != 0:
-                if maze[takeshi_current_loc[1]-1][takeshi_current_loc[0]] == "S":           
-                    pygame.draw.rect(screen,(0,0,0),Rect(takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size, unit_size, unit_size))
-                    takeshi_current_loc[1] = takeshi_current_loc[1]-1
-                    screen.blit(takeshiImage, (takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size))
-                    maze_ = Maze(maze, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
-                    aster_solver = AsterSolver(maze_, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
-                    aster_solver.solve_maze()
-                    traj_index = 0
-        traj_index = traj_index + 1
-        if key_array[274] == 1:#sita
-            if takeshi_current_loc[1]+1 != meiro_size:
-                if maze[takeshi_current_loc[1] +1][takeshi_current_loc[0]] == "S":          
-                    pygame.draw.rect(screen,(0,0,0),Rect(takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size, unit_size, unit_size))
-                    takeshi_current_loc[1]  = takeshi_current_loc[1] +1
-                    screen.blit(takeshiImage, (takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size))
-                    maze_ = Maze(maze, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[0],takeshi_current_loc[1]])
-                    aster_solver = AsterSolver(maze_, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
-                    aster_solver.solve_maze()
-                    traj_index = 0
-        if key_array[275] == 1:#migi
-            if  takeshi_current_loc[0]+1 != meiro_size:
-                if maze[takeshi_current_loc[1] ][takeshi_current_loc[0]+1] == "S":              
-                    pygame.draw.rect(screen,(0,0,0),Rect(takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size, unit_size, unit_size))   
-                    takeshi_current_loc[0] =  takeshi_current_loc[0]+1
-                    screen.blit(takeshiImage, (takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size))
-                    maze_ = Maze(maze, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[0],takeshi_current_loc[1]])
-                    aster_solver = AsterSolver(maze_, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
-                    aster_solver.solve_maze()
-                    traj_index = 0
-        if key_array[276] == 1:#hidari
-            if  takeshi_current_loc[0] != 0:
-                if maze[takeshi_current_loc[1]][takeshi_current_loc[0]-1] == "S":              
-                    pygame.draw.rect(screen,(0,0,0),Rect(takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size, unit_size, unit_size))
-                    takeshi_current_loc[0] =  takeshi_current_loc[0]-1
-                    screen.blit(takeshiImage, (takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size))
-                    maze_ = Maze(maze, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[0],takeshi_current_loc[1]])
-                    aster_solver = AsterSolver(maze_, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
-                    aster_solver.solve_maze()
-                    traj_index = 0        
+    for event in pygame.event.get():
+        if event.type == KEYDOWN:
+            if event.key == K_UP:#ue
+                if takeshi_current_loc[1] != 0:
+                    if maze[takeshi_current_loc[1]-1][takeshi_current_loc[0]] == "S":           
+                        pygame.draw.rect(screen,(0,0,0),Rect(takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size, unit_size, unit_size))
+                        takeshi_current_loc[1] = takeshi_current_loc[1]-1
+                        screen.blit(takeshiImage, (takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size))
+                        maze_ = Maze(maze, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
+                        aster_solver = AsterSolver(maze_, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
+                        aster_solver.solve_maze()
+                        traj_index = 0
+            traj_index = traj_index + 1
+            if event.key == K_DOWN:#sita
+                if takeshi_current_loc[1]+1 != meiro_size:
+                    if maze[takeshi_current_loc[1] +1][takeshi_current_loc[0]] == "S":          
+                        pygame.draw.rect(screen,(0,0,0),Rect(takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size, unit_size, unit_size))
+                        takeshi_current_loc[1]  = takeshi_current_loc[1] +1
+                        screen.blit(takeshiImage, (takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size))
+                        maze_ = Maze(maze, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[0],takeshi_current_loc[1]])
+                        aster_solver = AsterSolver(maze_, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
+                        aster_solver.solve_maze()
+                        traj_index = 0
+            if event.key == K_RIGHT:#migi
+                if  takeshi_current_loc[0]+1 != meiro_size:
+                    if maze[takeshi_current_loc[1] ][takeshi_current_loc[0]+1] == "S":              
+                        pygame.draw.rect(screen,(0,0,0),Rect(takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size, unit_size, unit_size))   
+                        takeshi_current_loc[0] =  takeshi_current_loc[0]+1
+                        screen.blit(takeshiImage, (takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size))
+                        maze_ = Maze(maze, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[0],takeshi_current_loc[1]])
+                        aster_solver = AsterSolver(maze_, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
+                        aster_solver.solve_maze()
+                        traj_index = 0
+            if event.key == K_LEFT:#hidari
+                if  takeshi_current_loc[0] != 0:
+                    if maze[takeshi_current_loc[1]][takeshi_current_loc[0]-1] == "S":              
+                        pygame.draw.rect(screen,(0,0,0),Rect(takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size, unit_size, unit_size))
+                        takeshi_current_loc[0] =  takeshi_current_loc[0]-1
+                        screen.blit(takeshiImage, (takeshi_current_loc[0]*unit_size, takeshi_current_loc[1]*unit_size))
+                        maze_ = Maze(maze, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[0],takeshi_current_loc[1]])
+                        aster_solver = AsterSolver(maze_, [honda_current_loc[1],honda_current_loc[0]], [takeshi_current_loc[1],takeshi_current_loc[0]])
+                        aster_solver.solve_maze()
+                        traj_index = 0        
         if takeshi_current_loc[0] == goal_loc[0] and takeshi_current_loc[1] == goal_loc[1]:
             screen.blit(winImage, (0,150))
             pygame.draw.rect(screen,(0,0,0),Rect(0,0,600,150))
